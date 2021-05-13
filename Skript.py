@@ -71,11 +71,42 @@ for label in timestamps:
 
 
 print(len(words)+pause)
-
-with open ("Reconstruct.TextGrid", mode= "w+") as f:
+print(words)
+index = 0
+overallindex = 1
+with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-16") as f:
     for x in no_r[:13]:
         f.write(x+"\n")
-    f.write("        intervals: size = "+str(len(reihenfolge))+"\n")
+    f.write("        intervals: size = "+str(len(reihenfolge)-1)+"\n")
+
+    for r in reihenfolge:
+        if r == "Text":
+            f.write("        intervals [" + str(overallindex)+ "]:\n" +
+                    "            xmin = " + str(words[index][1]) + "\n" +
+                    "            xmax = " + str(words[index][2]) + "\n" +
+                    '            text = ' + '"' + str(words[index][0]) + '"' + "\n"
+                    )
+            index += 1
+        elif r == "P":
+            if index != 0:
+                f.write("        intervals [" + str(overallindex)+ "]:\n" +
+                        "            xmin = " + str(words[index-1][2]) + "\n" +
+                        "            xmax = " + str(words[index][1]) + "\n" +
+                        '            text = "<P>"' + "\n"
+                        )
+            else:
+                f.write("        intervals [" + str(overallindex) + "]:\n" +
+                        "            xmin = 0" + "\n" +
+                        "            xmax = " + str(words[index][1]) + "\n" +
+                        '            text = "<P>"' + "\n"
+                        )
+        overallindex += 1
+        print(index)
+        print("OVERALL", overallindex)
+
+
+    # for x in reihenfolge:
+    #
     # if "        intervals " in r and "\"<p>\"" in no_r[no_r.index(r)-1] and "<" not in no_r[no_r.index(r)+3]:
     #     for i in [no_r.index(r)::4]:
     #         if "<p>" not in no_r[i + 1]:
@@ -101,3 +132,5 @@ with open ("Reconstruct.TextGrid", mode= "w+") as f:
 # with open("TestText.TextGrid", "w+") as f:
 #     f.write('''File type = "ooTextFile"\nObject class = "TextGrid"\n\nxmin = 0\nxmax = 2.3510204081632655\ntiers? <exists>\nsize = 1\nitem []:\n    item [1]:\n        class = "IntervalTier"\n        name = "Anno"\n        xmin = 0\n        xmax = 2.3510204081632655\n        intervals: size = 4\n        intervals [1]:\n            xmin = 0\n            xmax = 0.7997809754530211\n            text = ""\n        intervals [2]:\n            xmin = 0.7997809754530211\n            xmax = 1.1304817503560034\n            text = "das"\n        intervals [3]:\n            xmin = 1.1304817503560034\n            xmax = 1.5763372593769887\n            text = "test"\n        intervals [4]:\n            xmin = 1.5763372593769887\n            xmax = 2.3510204081632655\n            text = ""
 # ''')
+
+#('habe auch keine Ahnung mehr, was wir geredet haben', 3.36998958333333, 5.50998958333333),
