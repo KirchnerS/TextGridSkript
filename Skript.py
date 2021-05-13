@@ -2,9 +2,10 @@ import re
 
 text = []
 
-text = open("TestGrid.TextGrid", mode = "rb").read()
+text = open("multi_A-C_left.TextGrid", mode = "rb").read()
 
-mytext = text.decode('utf-8')
+mytext = text.decode('utf-16')
+
 
 lines = mytext.split("\n")
 
@@ -14,6 +15,7 @@ zwischen = []
 
 no_r = [re.sub(r"\r", "", line) for line in lines]
 
+print(no_r[:13])
 
 def Check_Nummer(x):
     try:
@@ -22,17 +24,42 @@ def Check_Nummer(x):
     except ValueError:
         return False
 
+reihenfolge = []
 
-for r in no_r[18::4]:
-    if "<" not in no_r[no_r.index(r)+3]:
-        zwischen.extend([no_r[no_r.index(r)+1].split()[2], no_r[no_r.index(r)+2].split()[2], no_r[no_r.index(r)+3].split()[2]])
+index = 17
+for r in no_r[17:13883:4]:
+    index += 4
+    if "<P>" in r and "<P>" not in no_r[index]:
+        reihenfolge.append("P")
+    elif "<P>" not in r and "<P>" in no_r[index]:
+        reihenfolge.append("Text")
+pause = 0
+for x in reihenfolge:
+    if x == "P":
+        pause += 1
+print(pause)
+print(len(reihenfolge))
+index2 = 18
+for r in no_r[18:13883:4]:
+    index2 +=4
+    if "<P>" not in no_r[index2-1]:
+        #print(no_r[index])
+        try:
+            zwischen.extend([no_r[index2-3].split()[2], no_r[index2-2].split()[2], no_r[index2-1].split()[2]])
+        except IndexError:
+            pass
     else:
         if zwischen:
             timestamps.append(zwischen)
             zwischen = []
+
+
+
+
 summe = []
 
 words = []
+
 
 for label in timestamps:
     word_label = []
@@ -43,10 +70,12 @@ for label in timestamps:
     words.append((" ".join(word_label), float(label[0]), float(label[-2])))
 
 
-print(timestamps)
-print(words)
+print(len(words)+pause)
 
-
+with open ("Reconstruct.TextGrid", mode= "w+") as f:
+    for x in no_r[:13]:
+        f.write(x+"\n")
+    f.write("        intervals: size = "+str(len(reihenfolge))+"\n")
     # if "        intervals " in r and "\"<p>\"" in no_r[no_r.index(r)-1] and "<" not in no_r[no_r.index(r)+3]:
     #     for i in [no_r.index(r)::4]:
     #         if "<p>" not in no_r[i + 1]:
