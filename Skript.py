@@ -13,10 +13,11 @@ timestamps = []
 
 zwischen = []
 
+# \r Ersetzt mit none um ueberschreiben der line zu verhindern
 no_r = [re.sub(r"\r", "", line) for line in lines]
 
-print(no_r[:13])
 
+#Fürs Suchen der Timestamps in der Line
 def Check_Nummer(x):
     try:
         float(x)
@@ -26,6 +27,7 @@ def Check_Nummer(x):
 
 reihenfolge = []
 
+#Index 17 ist Startzeitpunkt des Interval des Erstens tiers, dann +4 für jedes näcshte interval
 index = 17
 for r in no_r[17:13883:4]:
     index += 4
@@ -34,11 +36,8 @@ for r in no_r[17:13883:4]:
     elif "<P>" not in r and "<P>" in no_r[index]:
         reihenfolge.append("Text")
 pause = 0
-for x in reihenfolge:
-    if x == "P":
-        pause += 1
-print(pause)
-print(len(reihenfolge))
+
+#Checkt jedes textfeld jeden tiers, konstruiert reihenfolge ("TEXT", "PAUSE",....,"TEXT") zum Rekonstruieren des Files
 index2 = 18
 for r in no_r[18:13883:4]:
     index2 +=4
@@ -53,11 +52,6 @@ for r in no_r[18:13883:4]:
             timestamps.append(zwischen)
             zwischen = []
 
-
-
-
-summe = []
-
 words = []
 
 
@@ -69,12 +63,10 @@ for label in timestamps:
     laenge = float(label[0]) + float(label[-2])
     words.append((" ".join(word_label), float(label[0]), float(label[-2])))
 
-
-print(len(words)+pause)
-print(words)
 index = 0
 overallindex = 1
-with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-16") as f:
+# :13 ist der Kopf des TextGrids, immer gleich
+with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-8") as f:
     for x in no_r[:13]:
         f.write(x+"\n")
     f.write("        intervals: size = "+str(len(reihenfolge)-1)+"\n")
@@ -87,13 +79,17 @@ with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-16") as f:
                     '            text = ' + '"' + str(words[index][0]) + '"' + "\n"
                     )
             index += 1
+
         elif r == "P":
             if index != 0:
-                f.write("        intervals [" + str(overallindex)+ "]:\n" +
-                        "            xmin = " + str(words[index-1][2]) + "\n" +
-                        "            xmax = " + str(words[index][1]) + "\n" +
-                        '            text = "<P>"' + "\n"
-                        )
+                try:
+                    f.write("        intervals [" + str(overallindex)+ "]:\n" +
+                            "            xmin = " + str(words[index-1][2]) + "\n" +
+                            "            xmax = " + str(words[index][1]) + "\n" +
+                            '            text = "<P>"' + "\n"
+                            )
+                except IndexError:
+                    pass
             else:
                 f.write("        intervals [" + str(overallindex) + "]:\n" +
                         "            xmin = 0" + "\n" +
@@ -101,8 +97,15 @@ with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-16") as f:
                         '            text = "<P>"' + "\n"
                         )
         overallindex += 1
-        print(index)
-        print("OVERALL", overallindex)
+
+# 13882 sind restlichen Tiers
+with open("Reconstruct.TextGrid", encoding= "utf-8", mode = "a") as x:
+    for r in no_r[13882:]:
+        try:
+            x.write(r+"\n")
+        except IndexError:
+            pass
+
 
 
     # for x in reihenfolge:
