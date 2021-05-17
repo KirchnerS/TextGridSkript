@@ -1,8 +1,11 @@
 import re
+import sys
+
+name = input("Filename for transformation:")
 
 text = []
 
-text = open("multi_A-C_left.TextGrid", mode = "rb").read()
+text = open(name, mode = "rb").read()
 
 mytext = text.decode('utf-16')
 
@@ -66,7 +69,7 @@ for label in timestamps:
 index = 0
 overallindex = 1
 # :13 ist der Kopf des TextGrids, immer gleich
-with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-8") as f:
+with open ("New" + name, mode= "w+", encoding = "utf-8") as f:
     for x in no_r[:13]:
         f.write(x+"\n")
     f.write("        intervals: size = "+str(len(reihenfolge)-1)+"\n")
@@ -99,7 +102,7 @@ with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-8") as f:
         overallindex += 1
 
 # 13882 sind restlichen Tiers
-with open("Reconstruct.TextGrid", encoding= "utf-8", mode = "a") as x:
+with open("New" + name, encoding= "utf-8", mode = "a") as x:
     for r in no_r[13882:]:
         try:
             x.write(r+"\n")
