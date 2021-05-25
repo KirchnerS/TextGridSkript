@@ -1,8 +1,11 @@
 import re
+import sys
+
+name = 'multi_A-C_left.TextGrid'
 
 text = []
 
-text = open("multi_A-C_left.TextGrid", mode = "rb").read()
+text = open(name, mode = "rb").read()
 
 mytext = text.decode('utf-16')
 
@@ -17,6 +20,13 @@ zwischen = []
 no_r = [re.sub(r"\r", "", line) for line in lines]
 
 
+item_index = []
+for line in no_r:
+    if '    item [' in line:
+        item_index.append((no_r.index(line), line))
+
+print(item_index)
+
 #Fürs Suchen der Timestamps in der Line
 def Check_Nummer(x):
     try:
@@ -27,19 +37,20 @@ def Check_Nummer(x):
 
 reihenfolge = []
 
-#Index 17 ist Startzeitpunkt des Interval des Erstens tiers, dann +4 für jedes näcshte interval
-index = 17
-for r in no_r[17:13883:4]:
-    index += 4
-    if "<P>" in r and "<P>" not in no_r[index]:
+#Index 17 ist Startzeitpunkt des Interval des Erstens tiers, dann +4 für jedes nächste interval
+newindex = item_index[0][0]+9 #Erste Text Label Index
+newendindex = item_index[1][0]  #Hier endet das erste Tier
+print(newindex, 'DAS IS DER INDEX')
+for r in no_r[newindex:newendindex+1:4]:
+    newindex += 4
+    if "<P>" in r and "<P>" not in no_r[newindex]:
         reihenfolge.append("P")
-    elif "<P>" not in r and "<P>" in no_r[index]:
+    elif "<P>" not in r and "<P>" in no_r[newindex]:
         reihenfolge.append("Text")
-pause = 0
 
 #Checkt jedes textfeld jeden tiers, konstruiert reihenfolge ("TEXT", "PAUSE",....,"TEXT") zum Rekonstruieren des Files
-index2 = 18
-for r in no_r[18:13883:4]:
+index2 = item_index[0][0]+10
+for r in no_r[index2:newendindex+1:4]:
     index2 +=4
     if "<P>" not in no_r[index2-1]:
         #print(no_r[index])
@@ -66,8 +77,8 @@ for label in timestamps:
 index = 0
 overallindex = 1
 # :13 ist der Kopf des TextGrids, immer gleich
-with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-8") as f:
-    for x in no_r[:13]:
+with open ("New" + name, mode= "w+", encoding = "utf-8") as f:
+    for x in no_r[:item_index[0][0]+5]:
         f.write(x+"\n")
     f.write("        intervals: size = "+str(len(reihenfolge)-1)+"\n")
 
@@ -99,10 +110,21 @@ with open ("Reconstruct.TextGrid", mode= "w+", encoding = "utf-8") as f:
         overallindex += 1
 
 # 13882 sind restlichen Tiers
-with open("Reconstruct.TextGrid", encoding= "utf-8", mode = "a") as x:
-    for r in no_r[13882:]:
+with open("New" + name, encoding= "utf-8", mode = "a") as x:
+    for r in no_r[item_index[0][0]:item_index[1][0]]:
+        if "    item [" not in r:
+            x.write(r + "\n")
+        else:
+            mynumber = int(re.findall(r'\d+', r)[0])
+            x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+    for r in no_r[item_index[1][0]:]:
         try:
-            x.write(r+"\n")
+            if "    item [" not in r:
+                x.write(r+"\n")
+            else:
+
+                mynumber = int(re.findall(r'\d+',r)[0])
+                x.write(f"    item [{str(mynumber+1)}]:" + "\n")
         except IndexError:
             pass
 
