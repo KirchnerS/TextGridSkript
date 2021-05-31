@@ -1,13 +1,16 @@
 import re
-import sys
+import chardet
 
-name = 'multi_A-C_left.TextGrid'
+name = input("Name der Datei mit Extension:")
 
 text = []
 
 text = open(name, mode = "rb").read()
 
-mytext = text.decode('utf-16')
+result = chardet.detect(text)
+charenc = result['encoding']
+
+mytext = text.decode(charenc)
 
 
 lines = mytext.split("\n")
@@ -25,8 +28,6 @@ for line in no_r:
     if '    item [' in line:
         item_index.append((no_r.index(line), line))
 
-print(item_index)
-
 #Fürs Suchen der Timestamps in der Line
 def Check_Nummer(x):
     try:
@@ -40,7 +41,7 @@ reihenfolge = []
 #Index 17 ist Startzeitpunkt des Interval des Erstens tiers, dann +4 für jedes nächste interval
 newindex = item_index[0][0]+9 #Erste Text Label Index
 newendindex = item_index[1][0]  #Hier endet das erste Tier
-print(newindex, 'DAS IS DER INDEX')
+
 for r in no_r[newindex:newendindex+1:4]:
     newindex += 4
     if "<P>" in r and "<P>" not in no_r[newindex]:
