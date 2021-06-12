@@ -1,13 +1,16 @@
 import re
-import sys
+import chardet
 
-name = 'multi_A-C_left.TextGrid'
+name = input("Name der Datei ohne Extension:")
 
 text = []
 
-text = open(name, mode = "rb").read()
+text = open(name +".TextGrid", mode = "rb").read()
 
-mytext = text.decode('utf-16')
+result = chardet.detect(text)
+charenc = result['encoding']
+
+mytext = text.decode(charenc)
 
 
 lines = mytext.split("\n")
@@ -25,8 +28,6 @@ for line in no_r:
     if '    item [' in line:
         item_index.append((no_r.index(line), line))
 
-print(item_index)
-
 #Fürs Suchen der Timestamps in der Line
 def Check_Nummer(x):
     try:
@@ -40,10 +41,13 @@ reihenfolge = []
 #Index 17 ist Startzeitpunkt des Interval des Erstens tiers, dann +4 für jedes nächste interval
 newindex = item_index[0][0]+9 #Erste Text Label Index
 newendindex = item_index[1][0]  #Hier endet das erste Tier
-print(newindex, 'DAS IS DER INDEX')
+
 for r in no_r[newindex:newendindex+1:4]:
     newindex += 4
+    print(r, "XXXX",no_r[newindex] )
     if "<P>" in r and "<P>" not in no_r[newindex]:
+        reihenfolge.append("P")
+    elif "<P>" in r and 'text = ""' in no_r[newindex]:
         reihenfolge.append("P")
     elif "<P>" not in r and "<P>" in no_r[newindex]:
         reihenfolge.append("Text")
@@ -77,7 +81,7 @@ for label in timestamps:
 index = 0
 overallindex = 1
 # :13 ist der Kopf des TextGrids, immer gleich
-with open ("New" + name, mode= "w+", encoding = "utf-8") as f:
+with open(name + "_New" + ".TextGrid", mode= "w+", encoding = "utf-8") as f:
     for x in no_r[:item_index[0][0]+5]:
         f.write(x+"\n")
     f.write("        intervals: size = "+str(len(reihenfolge)-1)+"\n")
@@ -110,7 +114,7 @@ with open ("New" + name, mode= "w+", encoding = "utf-8") as f:
         overallindex += 1
 
 # 13882 sind restlichen Tiers
-with open("New" + name, encoding= "utf-8", mode = "a") as x:
+with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
     for r in no_r[item_index[0][0]:item_index[1][0]]:
         if "    item [" not in r:
             x.write(r + "\n")
