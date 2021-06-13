@@ -134,25 +134,26 @@ Test_liste = []
 for x in range_pauses_cc:
     for y in range_pauses_anno:
         if (x[0] >= y[0]) and (x[0] <= y[1]):
-            Test_liste.append(("DA IST SCHON NE PAUSE", y[0], y[1]))
-
+            Test_liste.append((y[0], y[1]))
+            break
         elif (x[1] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append(("DA IST SCHON NE PAUSE", y[0], y[1]))
-
+            Test_liste.append((y[0], y[1]))
+            break
         elif (x[0] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append(("DA IST SCHON NE PAUSE", y[0], y[1]))
-
+            Test_liste.append((y[0], y[1]))
+            break
         elif (x[0] < y[0]) and (x[1] > y[1]):
-            Test_liste.append(("DA IST SCHON NE PAUSE", y[0], y[1]))
+            Test_liste.append(( y[0], y[1]))
+            break
 
         elif (x[0],x[1]) not in Test_liste:
             Test_liste.append((x[0],x[1]))
+            break
 
 
 
 
-
-print(Test_liste)
+print("DAS IST DUIE LISTE", Test_liste)
 # 13882 sind restlichen Tiers
 with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
     for r in no_r[item_index[0][0]:item_index[1][0]]:
@@ -161,7 +162,7 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
         else:
             mynumber = int(re.findall(r'\d+', r)[0])
             x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
-    for r in no_r[item_index[1][0]:]:
+    for r in no_r[item_index[1][0]:item_index[6][0]]:
         try:
             if "    item [" not in r:
                 x.write(r+"\n")
@@ -171,6 +172,39 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
                 x.write(f"    item [{str(mynumber+1)}]:" + "\n")
         except IndexError:
             pass
+    for r in no_r[item_index[6][0]:item_index[6][0]+5]:
+        if "    item [" not in r:
+            x.write(r + "\n")
+        else:
+            mynumber = int(re.findall(r'\d+', r)[0])
+            x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+
+    x.write("        intervals: size = " + str(len(Test_liste)) + "\n")
+
+    pause_index = 1
+    for i in range(len(Test_liste)):
+        x.write("        intervals [" + str(pause_index)+ "]:\n" +
+                    "            xmin = " + str(Test_liste[i][0]) + "\n" +
+                    "            xmax = " + str(Test_liste[i][1]) + "\n" +
+                    '            text = ' + '"' + "p" + '"' + "\n"
+                    )
+        pause_index += 1
+        try:
+            x.write("        intervals [" + str(pause_index) + "]:\n" +
+                    "            xmin = " + str(Test_liste[i][1]) + "\n" +
+                    "            xmax = " + str(Test_liste[i+1][0]) + "\n" +
+                    '            text = ' + '""' + "\n"
+                    )
+            pause_index += 1
+        except IndexError:
+            pass
+    for r in no_r[item_index[7][0]:]:
+        if "    item [" not in r:
+            x.write(r + "\n")
+        else:
+            mynumber = int(re.findall(r'\d+', r)[0])
+            x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+
 
 
 
