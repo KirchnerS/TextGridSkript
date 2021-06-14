@@ -28,8 +28,6 @@ for line in no_r:
     if '    item [' in line:
         item_index.append((no_r.index(line), line))
 
-print(item_index)
-
 #Fürs Suchen der Timestamps in der Line
 def Check_Nummer(x):
     try:
@@ -91,7 +89,7 @@ for i in range(int(item_index[6][0]),int(item_index[7][0]),4):
         range_pauses_anno.append((float(no_r[i-1].split()[2]), float(no_r[i].split()[2])))
         #print(float(no_r[i-1].split()[2])+(float(no_r[i].split()[2]) - float(no_r[i-1].split()[2]))/2)
 
-print("DAS SIND DIE ANNOS LABELS\n",range_pauses_anno)
+
 index = 0
 overallindex = 1
 
@@ -129,31 +127,34 @@ with open(name + "_New" + ".TextGrid", mode= "w+", encoding = "utf-8") as f:
                         )
                 range_pauses_cc.append((0, words[index][1]))
         overallindex += 1
-print("DAS SIND DIE CC\n\n\n",range_pauses_cc)
 Test_liste = []
+
+gate = 0
 for x in range_pauses_cc:
     for y in range_pauses_anno:
         if (x[0] >= y[0]) and (x[0] <= y[1]):
-            Test_liste.append((y[0], y[1]))
+            Test_liste.append((y[0], y[1], "COND1"))
+            gate = 1
             break
         elif (x[1] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1]))
+            Test_liste.append((y[0], y[1], "COND2"))
+            gate = 1
             break
         elif (x[0] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1]))
+            Test_liste.append((y[0], y[1], "COND3"))
+            gate = 1
             break
         elif (x[0] < y[0]) and (x[1] > y[1]):
-            Test_liste.append(( y[0], y[1]))
+            Test_liste.append(( y[0], y[1], "COND4"))
+            gate = 1
             break
-
-        elif (x[0],x[1]) not in Test_liste:
-            Test_liste.append((x[0],x[1]))
-            break
-
-
+    if gate == 0:
+        Test_liste.append((x[0],x[1], "LETZTE"))
+    else:
+        gate = 0
 
 
-print("DAS IST DUIE LISTE", Test_liste)
+
 # 13882 sind restlichen Tiers
 with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
     for r in no_r[item_index[0][0]:item_index[1][0]]:
@@ -198,13 +199,39 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
             pause_index += 1
         except IndexError:
             pass
+with open(name + "_New" + ".TextGrid", encoding="utf-8", mode="r") as y:
+    my_data = y.readlines()
+    for line in my_data:
+        if "    item [" + str(mynumber+1) in line:
+            pause_tier_index = my_data.index(line)
+            replaced_line = my_data[pause_tier_index+5].split()
+            replaced_line[3] = str(pause_index-1)
+            my_data[pause_tier_index+5] = "        " + " ".join(replaced_line)+"\n"
+
+            break
+
+with open(name + "_New" + ".TextGrid", encoding="utf-8", mode="w") as newfile:
+    content = ""
+    for line in my_data:
+        content += line
+    newfile.write(content)
+
+
+with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as f:
     for r in no_r[item_index[7][0]:]:
         if "    item [" not in r:
-            x.write(r + "\n")
+            f.write(r + "\n")
         else:
             mynumber = int(re.findall(r'\d+', r)[0])
-            x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+            f.write(f"    item [{str(mynumber + 1)}]:" + "\n")
 
 
-
+# with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "r") as y:
+#     for line in y:
+#         if "    item [" + str(mynumber) in line:
+#             print(line)
+#             strip_line = line.strip()
+#             new_line = strip_line.replace
+#         else:
+#            print("    item [" + str(mynumber))
 
