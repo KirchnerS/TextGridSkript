@@ -1,5 +1,7 @@
 import re
 import chardet
+import csv
+
 
 name = input("Name der Datei ohne Extension:")
 
@@ -133,27 +135,27 @@ gate = 0
 for x in range_pauses_cc:
     for y in range_pauses_anno:
         if (x[0] >= y[0]) and (x[0] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND1"))
+            Test_liste.append((y[0], y[1], "COND1", x[0], x[1]))
             gate = 1
             break
         elif (x[1] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND2"))
+            Test_liste.append((y[0], y[1], "COND2", x[0], x[1]))
             gate = 1
             break
         elif (x[0] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND3"))
+            Test_liste.append((y[0], y[1], "COND3", x[0], x[1]))
             gate = 1
             break
         elif (x[0] < y[0]) and (x[1] > y[1]):
-            Test_liste.append(( y[0], y[1], "COND4"))
+            Test_liste.append(( y[0], y[1], "COND4", x[0], x[1]))
             gate = 1
             break
     if gate == 0:
-        Test_liste.append((x[0],x[1], "LETZTE"))
+        Test_liste.append((x[0], x[1], "<P>", x[0], x[1]))
     else:
         gate = 0
 
-
+print(Test_liste)
 
 # 13882 sind restlichen Tiers
 with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
@@ -224,6 +226,17 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as f:
         else:
             mynumber = int(re.findall(r'\d+', r)[0])
             f.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+
+
+
+with open(name + "_New" + ".csv", encoding= "utf-8", mode = "w+", newline='') as c:
+    header = ["Label pre-annotated", "Label self-annotated", "Begin pre-annotated", "End pre-annotated", "Begin self-annotated",
+              "End self-annotated", "Difference Begin", "Difference End"]
+    writer = csv.writer(c)
+    writer.writerow(header)
+    for pause_times in Test_liste:
+        writer.writerow(["<P>", pause_times[2], pause_times[3], pause_times[4], pause_times[0], pause_times[1],
+                         pause_times[0]-pause_times[3], pause_times[1]-pause_times[4]])
 
 
 # with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "r") as y:
