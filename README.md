@@ -19,5 +19,12 @@ Nach der Angabe des Namens werden im gleichen Ordner sowohl ein Textgrid (*ALTER
 Die .csv-Datei beinhaltet: <br>
 * den Namen des vorannotierten Labels (Spalte 1)
 * den Namen des danach annotierten Labels oder *COND*, wenn sich der Anfangs- und/oder Endpunkt des Pausenintervalls vom vorannotierten Punkt unterscheidet (Spalte 2)
-* den Startpunkt des vorannotierten Intervalls (Spalte 3), den Endpunkt des danach annotierten Intervalls  Weitere Erklärungen zu *COND* befinden sich im Abschnitt *conditions*. 
+* den Startpunkt des vorannotierten Intervalls (Spalte 3)
+* den Endpunkt des vorannotierten Intervalls (Spalte 4)
+* den Startpunkt des danach annotierten Intervalls (Spalte 5)
+* den Endpunkt des danach annotierten Intervalls (Spalte 6) 
+* die Differenz zwischen den Startpunkten des vorannotierten und danach annotierten Intervalls (Spalte 7)
+* die Differenz zwischen den Endpunkten des vorannotierten und danach annotierten Intervalls (Spalte 8)
+Weitere Erklärungen zu *COND* befinden sich im Abschnitt *conditions*.
+Folgende Abbildung zeigt einen Ausschnitt aus der csv.-Datei: 
 ![.csv-Datei](https://github.com/KirchnerS/TextGridSkript/blob/master/EXCEL_2021-07-06_12-19-13.png)
