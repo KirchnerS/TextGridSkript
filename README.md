@@ -16,6 +16,8 @@ Danach wird man aufgefordert, den Namen der Datei anzugeben. <br>
 Nach der Angabe des Namens werden im gleichen Ordner sowohl ein Textgrid (*ALTER_NAME*\_New.TextGrid) als auch eine **.csv**-Datei erstellt.
 
 ### .csv-Datei
-
-
+Die .csv-Datei beinhaltet: <br>
+*den Namen des vorannotierten Labels (Spalte 1)
+*den Namen des danach annotierten Labels oder *COND*, wenn sich der Anfangs- und/oder Endpunkt des Pausenintervalls vom vorannotierten Punkt unterscheidet (Spalte 2)
+*den Startpunkt des vorannotierten Intervalls (Spalte 3), den Endpunkt des danach annotierten Intervalls  Weitere Erklärungen zu *COND* befinden sich im Abschnitt *conditions*. 
 ![.csv-Datei](https://github.com/KirchnerS/TextGridSkript/blob/master/EXCEL_2021-07-06_12-19-13.png)
