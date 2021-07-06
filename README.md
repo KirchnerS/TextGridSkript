@@ -18,4 +18,4 @@ Nach der Angabe des Namens werden im gleichen Ordner sowohl ein Textgrid (*ALTER
 ### .csv-Datei
 
 
-
+![.csv-Datei](https://github.com/KirchnerS/TextGridSkript/blob/master/EXCEL_2021-07-06_12-19-13.png)
