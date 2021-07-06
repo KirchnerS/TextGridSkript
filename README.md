@@ -13,7 +13,7 @@ Danach wird man aufgefordert, den Namen der Datei anzugeben. <br>
 <br>
 *Name der Datei ohne Extension:*
 <br>
-Nach der Angabe des Namens werden im gleichen Ordner sowohl ein Textgrid (__ALTER_NAME___New.TextGrid)
+Nach der Angabe des Namens werden im gleichen Ordner sowohl ein Textgrid (*ALTER_NAME*_New.TextGrid)
 
 
 
