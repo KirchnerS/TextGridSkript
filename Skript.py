@@ -1,5 +1,7 @@
 import re
 import chardet
+import csv
+
 
 name = input("Name der Datei ohne Extension:")
 
@@ -22,7 +24,7 @@ zwischen = []
 # \r Ersetzt mit none um ueberschreiben der line zu verhindern
 no_r = [re.sub(r"\r", "", line) for line in lines]
 
-
+# Speichert Zeilennumer und tier number als list of tuples
 item_index = []
 for line in no_r:
     if '    item [' in line:
@@ -44,7 +46,6 @@ newendindex = item_index[1][0]  #Hier endet das erste Tier
 
 for r in no_r[newindex:newendindex+1:4]:
     newindex += 4
-    print(r, "XXXX",no_r[newindex] )
     if "<P>" in r and "<P>" not in no_r[newindex]:
         reihenfolge.append("P")
     elif "<P>" in r and 'text = ""' in no_r[newindex]:
@@ -63,11 +64,13 @@ for r in no_r[index2:newendindex+1:4]:
         except IndexError:
             pass
     else:
+        # Bei Pause Wörter in timestamps appenden
         if zwischen:
             timestamps.append(zwischen)
             zwischen = []
 
 words = []
+#print(timestamps)
 
 
 for label in timestamps:
@@ -78,8 +81,20 @@ for label in timestamps:
     laenge = float(label[0]) + float(label[-2])
     words.append((" ".join(word_label), float(label[0]), float(label[-2])))
 
+# Hier werden die Mittelpunkte der annotierten Pausen gespiechert, um zu überprüfen, ob dieses Label kopiert werden muss
+# oder nicht
+
+range_pauses_cc = [] # Tuple aus Range der Pausen nach zusammenlegen, also (10.34, 12.00) für label von start bis ende
+range_pauses_anno = []
+for i in range(int(item_index[6][0]),int(item_index[7][0]),4):
+    if 'text = "p"' in no_r[i+1]:
+        range_pauses_anno.append((float(no_r[i-1].split()[2]), float(no_r[i].split()[2])))
+        #print(float(no_r[i-1].split()[2])+(float(no_r[i].split()[2]) - float(no_r[i-1].split()[2]))/2)
+
+
 index = 0
 overallindex = 1
+
 # :13 ist der Kopf des TextGrids, immer gleich
 with open(name + "_New" + ".TextGrid", mode= "w+", encoding = "utf-8") as f:
     for x in no_r[:item_index[0][0]+5]:
@@ -103,6 +118,7 @@ with open(name + "_New" + ".TextGrid", mode= "w+", encoding = "utf-8") as f:
                             "            xmax = " + str(words[index][1]) + "\n" +
                             '            text = "<P>"' + "\n"
                             )
+                    range_pauses_cc.append((words[index-1][2], words[index][1]))
                 except IndexError:
                     pass
             else:
@@ -111,7 +127,35 @@ with open(name + "_New" + ".TextGrid", mode= "w+", encoding = "utf-8") as f:
                         "            xmax = " + str(words[index][1]) + "\n" +
                         '            text = "<P>"' + "\n"
                         )
+                range_pauses_cc.append((0, words[index][1]))
         overallindex += 1
+Test_liste = []
+
+gate = 0
+for x in range_pauses_cc:
+    for y in range_pauses_anno:
+        if (x[0] >= y[0]) and (x[0] <= y[1]):
+            Test_liste.append((y[0], y[1], "COND1", x[0], x[1]))
+            gate = 1
+            break
+        elif (x[1] >= y[0]) and (x[1] <= y[1]):
+            Test_liste.append((y[0], y[1], "COND2", x[0], x[1]))
+            gate = 1
+            break
+        elif (x[0] >= y[0]) and (x[1] <= y[1]):
+            Test_liste.append((y[0], y[1], "COND3", x[0], x[1]))
+            gate = 1
+            break
+        elif (x[0] < y[0]) and (x[1] > y[1]):
+            Test_liste.append(( y[0], y[1], "COND4", x[0], x[1]))
+            gate = 1
+            break
+    if gate == 0:
+        Test_liste.append((x[0], x[1], "<P>", x[0], x[1]))
+    else:
+        gate = 0
+
+print(Test_liste)
 
 # 13882 sind restlichen Tiers
 with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
@@ -121,7 +165,7 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
         else:
             mynumber = int(re.findall(r'\d+', r)[0])
             x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
-    for r in no_r[item_index[1][0]:]:
+    for r in no_r[item_index[1][0]:item_index[6][0]]:
         try:
             if "    item [" not in r:
                 x.write(r+"\n")
@@ -131,35 +175,69 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as x:
                 x.write(f"    item [{str(mynumber+1)}]:" + "\n")
         except IndexError:
             pass
+    for r in no_r[item_index[6][0]:item_index[6][0]+5]:
+        if "    item [" not in r:
+            x.write(r + "\n")
+        else:
+            mynumber = int(re.findall(r'\d+', r)[0])
+            x.write(f"    item [{str(mynumber + 1)}]:" + "\n")
+
+    x.write("        intervals: size = " + str(len(Test_liste)) + "\n")
+
+    pause_index = 1
+    for i in range(len(Test_liste)):
+        x.write("        intervals [" + str(pause_index)+ "]:\n" +
+                    "            xmin = " + str(Test_liste[i][0]) + "\n" +
+                    "            xmax = " + str(Test_liste[i][1]) + "\n" +
+                    '            text = ' + '"' + "p" + '"' + "\n"
+                    )
+        pause_index += 1
+        try:
+            x.write("        intervals [" + str(pause_index) + "]:\n" +
+                    "            xmin = " + str(Test_liste[i][1]) + "\n" +
+                    "            xmax = " + str(Test_liste[i+1][0]) + "\n" +
+                    '            text = ' + '""' + "\n"
+                    )
+            pause_index += 1
+        except IndexError:
+            pass
+with open(name + "_New" + ".TextGrid", encoding="utf-8", mode="r") as y:
+    my_data = y.readlines()
+    for line in my_data:
+        if "    item [" + str(mynumber+1) in line:
+            pause_tier_index = my_data.index(line)
+            replaced_line = my_data[pause_tier_index+5].split()
+            replaced_line[3] = str(pause_index-1)
+            my_data[pause_tier_index+5] = "        " + " ".join(replaced_line)+"\n"
+
+            break
+
+with open(name + "_New" + ".TextGrid", encoding="utf-8", mode="w") as newfile:
+    content = ""
+    for line in my_data:
+        content += line
+    newfile.write(content)
+
+
+with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as f:
+    for r in no_r[item_index[7][0]:]:
+        if "    item [" not in r:
+            f.write(r + "\n")
+        else:
+            mynumber = int(re.findall(r'\d+', r)[0])
+            f.write(f"    item [{str(mynumber + 1)}]:" + "\n")
 
 
 
-    # for x in reihenfolge:
-    #
-    # if "        intervals " in r and "\"<p>\"" in no_r[no_r.index(r)-1] and "<" not in no_r[no_r.index(r)+3]:
-    #     for i in [no_r.index(r)::4]:
-    #         if "<p>" not in no_r[i + 1]:
-    #             zwischen.append((no_r[i-1], no_r[i], no_r[i+1]))
-    #
-    #         else:
-    #             timestamps.append(zwischen)
-        #timestamps.append(zwischen)
-        # for index in range(no_r.index(r))
-
-#print(timestamps)
-
-# for paar in timestamps:
-#     for y in x:
-#         print(y.split())
-#
-# print(lines)
-#         timestamps.append((line, lines[lines.index(line)+3]))
-#         print(line, lines[lines.index(line)+3])
-# print(timestamps)
+with open(name + "_New" + ".csv", encoding= "utf-8", mode = "w+", newline='') as c:
+    header = ["Label pre-annotated", "Label self-annotated", "Begin pre-annotated", "End pre-annotated", "Begin self-annotated",
+              "End self-annotated", "Difference Begin", "Difference End"]
+    c.write("SEP=,\n")
+    writer = csv.writer(c)
+    writer.writerow(header)
+    for pause_times in Test_liste:
+        writer.writerow(["<P>", pause_times[2], pause_times[3], pause_times[4], pause_times[0], pause_times[1],
+                         pause_times[0]-pause_times[3], pause_times[1]-pause_times[4]])
 
 
-# with open("TestText.TextGrid", "w+") as f:
-#     f.write('''File type = "ooTextFile"\nObject class = "TextGrid"\n\nxmin = 0\nxmax = 2.3510204081632655\ntiers? <exists>\nsize = 1\nitem []:\n    item [1]:\n        class = "IntervalTier"\n        name = "Anno"\n        xmin = 0\n        xmax = 2.3510204081632655\n        intervals: size = 4\n        intervals [1]:\n            xmin = 0\n            xmax = 0.7997809754530211\n            text = ""\n        intervals [2]:\n            xmin = 0.7997809754530211\n            xmax = 1.1304817503560034\n            text = "das"\n        intervals [3]:\n            xmin = 1.1304817503560034\n            xmax = 1.5763372593769887\n            text = "test"\n        intervals [4]:\n            xmin = 1.5763372593769887\n            xmax = 2.3510204081632655\n            text = ""
-# ''')
 
-#('habe auch keine Ahnung mehr, was wir geredet haben', 3.36998958333333, 5.50998958333333),
