@@ -135,23 +135,23 @@ gate = 0
 for x in range_pauses_cc:
     for y in range_pauses_anno:
         if (x[0] >= y[0]) and (x[0] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND1", x[0], x[1]))
+            Test_liste.append((round(y[0], 3), round(y[1], 3), "COND1", round(x[0], 3), round(x[1]), 3))
             gate = 1
             break
         elif (x[1] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND2", x[0], x[1]))
+            Test_liste.append((round(y[0], 3), round(y[1], 3), "COND2", round(x[0], 3), round(x[1], 3)))
             gate = 1
             break
         elif (x[0] >= y[0]) and (x[1] <= y[1]):
-            Test_liste.append((y[0], y[1], "COND3", x[0], x[1]))
+            Test_liste.append((round(y[0], 3), round(y[1], 3), "COND3", round(x[0], 3), round(x[1]), 3))
             gate = 1
             break
         elif (x[0] < y[0]) and (x[1] > y[1]):
-            Test_liste.append(( y[0], y[1], "COND4", x[0], x[1]))
+            Test_liste.append((round(y[0], 3), round(y[1], 3), "COND4", round(x[0], 3), round(x[1], 3)))
             gate = 1
             break
     if gate == 0:
-        Test_liste.append((x[0], x[1], "<P>", x[0], x[1]))
+        Test_liste.append((round(x[0], 3), round(x[1], 3), "<P>", round(x[0], 3), round(x[1], 3)))
     else:
         gate = 0
 
