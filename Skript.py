@@ -232,6 +232,7 @@ with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "a") as f:
 with open(name + "_New" + ".csv", encoding= "utf-8", mode = "w+", newline='') as c:
     header = ["Label pre-annotated", "Label self-annotated", "Begin pre-annotated", "End pre-annotated", "Begin self-annotated",
               "End self-annotated", "Difference Begin", "Difference End"]
+    c.write("SEP=,\n")
     writer = csv.writer(c)
     writer.writerow(header)
     for pause_times in Test_liste:
@@ -239,12 +240,4 @@ with open(name + "_New" + ".csv", encoding= "utf-8", mode = "w+", newline='') as
                          pause_times[0]-pause_times[3], pause_times[1]-pause_times[4]])
 
 
-# with open(name + "_New" + ".TextGrid" , encoding= "utf-8", mode = "r") as y:
-#     for line in y:
-#         if "    item [" + str(mynumber) in line:
-#             print(line)
-#             strip_line = line.strip()
-#             new_line = strip_line.replace
-#         else:
-#            print("    item [" + str(mynumber))
 
