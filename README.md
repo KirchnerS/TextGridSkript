@@ -8,5 +8,8 @@ Folgend wird das Skript ausgeführt:
 ```
 python Skript.py
 ```
+Danach wird man aufgefordert, den Namen der Datei anzugeben: <br>
+*Name der Datei ohne Extension:*
+
 
 
