@@ -31,6 +31,13 @@ Weitere Erklärungen zu *COND* befinden sich im Abschnitt *conditions*.
 
 Folgende Abbildung zeigt einen Ausschnitt aus der csv.-Datei:
 
-## conditions
-
 ![.csv-Datei](https://github.com/KirchnerS/TextGridSkript/blob/master/EXCEL_2021-07-06_12-19-13.png)
+
+## conditions
+Unterscheiden sich die Start- und/oder Endpunkte der vorannotierten und danach annotierten Pausen, so wird in der .csv-Datei *COND* annotiert. <br>
+Seien *X0* der Startpunkt des voranotierten Labels, *X1* der Endpunkt des vorannotierten Labels, *Y0* der Startpunkt des danach annotierten Labels und *Y1* der Endpunkt des danach annotierten Labels, so gilt:
+* COND1, wenn X0>=Y0 & X0<=Y1
+* COND2, wenn X1>=Y0 & X1<=Y1
+* COND3, wenn X0>=Y0 & X1<=Y1
+* COND4, wenn X0<Y0 & X1>Y1
+
